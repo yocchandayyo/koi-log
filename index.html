@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>恋ログ - マッチング相手管理アプリ</title>
+<meta name="description" content="マッチングアプリで出会った人を、あなたのスマホの中だけでこっそり管理。データは端末の外に出ません。">
+<meta name="theme-color" content="#ff7a8a">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="assets/icons/icon-192.png">
+<link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="topbar">
+  <button id="back-btn" class="icon-btn hidden" aria-label="戻る">&#8592;</button>
+  <h1 id="topbar-title">恋ログ</h1>
+  <button id="settings-btn" class="icon-btn" aria-label="設定">&#9881;</button>
+</header>
+
+<main id="view"></main>
+
+<button id="fab" aria-label="相手を追加">＋</button>
+
+<div id="toast" class="toast hidden"></div>
+
+<script type="module" src="js/app.js"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js'));
+}
+</script>
+</body>
+</html>

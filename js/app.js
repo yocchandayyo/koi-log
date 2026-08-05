@@ -38,7 +38,7 @@ function stars(n) {
   return '★'.repeat(n) + '☆'.repeat(5 - n);
 }
 
-const INITIAL_COLORS = ['#f2a0ae', '#a0c8f2', '#a8dcc3', '#e3c39a', '#c3aee6', '#f2c4a0'];
+const INITIAL_COLORS = ['#d9a3ae', '#a3b8d9', '#a8c9b8', '#d9c3a3', '#b8a8d1', '#d9b0a3'];
 
 function avatarHtml(person, cls = 'avatar') {
   if (person.avatar) {
@@ -85,6 +85,11 @@ function render() {
   settingsBtn.classList.toggle('hidden', !isHome);
   fab.classList.toggle('hidden', !isHome);
 
+  // ページをめくる所作(1回だけ再生)
+  view.classList.remove('view-enter');
+  void view.offsetWidth;
+  view.classList.add('view-enter');
+
   if (screen.name === 'home') renderHome();
   else if (screen.name === 'detail') renderDetail();
   else if (screen.name === 'form') renderForm();
@@ -110,8 +115,9 @@ function renderHome() {
   let body;
   if (people.length === 0) {
     body = `<div class="empty">
-      <div class="heart">💌</div>
-      <p>まだ誰も登録されていません。<br>右下の「＋」から最初のひとりを<br>登録してみましょう!</p>
+      <img src="assets/illust/empty.png" alt="" onerror="this.style.display='none'">
+      <p class="lead">ここは、あなただけの恋の記録帳。</p>
+      <p>右下の「＋」から<br>最初のひとりを登録してみましょう</p>
     </div>`;
   } else if (shown.length === 0) {
     body = `<div class="empty"><p>この状態の相手はいません</p></div>`;
@@ -159,9 +165,23 @@ function renderDetail() {
    .map(([k, v]) => `<div class="prof-row"><span class="k">${k}</span><span class="v">${esc(v)}</span></div>`)
    .join('') || `<div class="prof-row"><span class="v" style="color:var(--ink-soft)">プロフィール未入力</span></div>`;
 
-  const statusChips = store.STATUSES.map(s =>
-    `<button class="chip ${p.status === s.id ? `s-on ${s.id}` : ''}" data-status="${s.id}">${s.label}</button>`
-  ).join('');
+  // 章トラッカー: ふたりの物語をどこまで読み進めたか
+  const chapters = store.STATUSES.filter(s => s.id !== 'ended');
+  const chapterIdx = chapters.findIndex(s => s.id === p.status);
+  const isEnded = p.status === 'ended';
+  const storyTrack = `
+    <div class="story-track ${isEnded ? 'is-ended' : ''}">
+      <div class="story-line">
+        ${chapters.map((s, i) => {
+          const reached = chapterIdx >= 0 && i <= chapterIdx;
+          const current = i === chapterIdx;
+          return `<button class="story-step ${reached ? 'reached' : ''} ${current ? 'current' : ''}" data-status="${s.id}">
+            <span class="dot"></span><span class="lbl">${s.label}</span>
+          </button>`;
+        }).join('')}
+      </div>
+      <button class="story-ended ${isEnded ? 'on' : ''}" data-status="ended">${isEnded ? 'この章は閉じました' : '終了にする'}</button>
+    </div>`;
 
   const starBtns = [1, 2, 3, 4, 5].map(n =>
     `<button data-star="${n}" class="${p.rating >= n ? 'on' : ''}">★</button>`).join('');
@@ -197,7 +217,7 @@ function renderDetail() {
       <div class="name">${esc(p.name) || '(名前なし)'}</div>
       <div class="meta">${[p.age ? p.age + '歳' : '', p.app].filter(Boolean).join('・')}</div>
       <div class="stars-edit">${starBtns}</div>
-      <div class="status-picker">${statusChips}</div>
+      ${storyTrack}
     </div>
     ${next}
     <div class="section"><h2>👤 プロフィール</h2>${profRows}</div>
@@ -388,7 +408,7 @@ function renderSettings() {
       <h2>⚠️ 危険な操作</h2>
       <button class="btn btn-danger" id="wipe-btn" style="width:100%">全データを削除する</button>
     </div>
-    <p class="settings-desc" style="text-align:center;margin-top:16px">恋ログ v1.0</p>`;
+    <p class="settings-desc" style="text-align:center;margin-top:16px">恋ログ v2.0</p>`;
 
   document.getElementById('export-btn').addEventListener('click', () => {
     const blob = new Blob([store.exportJson()], { type: 'application/json' });

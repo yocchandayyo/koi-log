@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-"""恋ログ用のアバターイラスト16種+アプリアイコンを Gemini (Nano Banana) で生成。"""
+"""恋ログ「夜の手帳」デザイン用の画像素材を Gemini (Nano Banana Pro) で生成。
+アバター16種 / アプリアイコン(maskableセーフゾーン対応) / 空画面イラスト"""
 import sys, pathlib, io
 from google import genai
 from google.genai import types
@@ -9,44 +10,60 @@ KEY = pathlib.Path(r"C:\Users\matsumotoyoshiki\Desktop\実験\API\gemini_API.txt
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 AV_OUT = ROOT / "assets" / "avatars"
 IC_OUT = ROOT / "assets" / "icons"
-AV_OUT.mkdir(parents=True, exist_ok=True)
-IC_OUT.mkdir(parents=True, exist_ok=True)
+IL_OUT = ROOT / "assets" / "illust"
+for d in (AV_OUT, IC_OUT, IL_OUT):
+    d.mkdir(parents=True, exist_ok=True)
 
 client = genai.Client(api_key=KEY)
 MODEL = "gemini-3-pro-image"
 
-STYLE = ("cute flat vector portrait illustration, bust-up avatar, kawaii Japanese anime-lite style, "
-         "soft warm pastel colors, clean thin outlines, gentle smile, friendly, "
-         "centered face, square 1:1 composition, plain solid pastel background filling the whole square, "
+# 夜の手帳トーン: 深い茄子紺の背景、暖かいランプの灯り、琥珀のアクセント
+STYLE = ("elegant flat vector portrait illustration, bust-up avatar, Japanese anime-lite style, "
+         "lit by warm amber lamp light from one side, soft rim light, gentle expression, "
+         "warm dusk color grading, refined and slightly romantic night-time mood, "
+         "clean thin outlines, centered face, square 1:1 composition, "
+         "plain solid deep plum background (#2a1f31) filling the whole square, "
          "no text, no letters, no watermark, high quality, consistent illustration style")
 
 FEMALES = [
-    "a young Japanese woman in her 20s with long straight dark brown hair, soft pink blouse",
+    "a young Japanese woman in her 20s with long straight dark brown hair, soft rose blouse",
     "a young Japanese woman with a shoulder-length wavy bob, beige cardigan, warm smile",
-    "a young Japanese woman with a high ponytail, sporty white shirt, cheerful",
-    "a young Japanese woman with short black hair and bangs, mint green top, calm",
-    "a Japanese woman in her late 20s with long wavy chestnut hair, elegant white dress",
-    "a young Japanese woman with twin side buns, playful expression, lavender hoodie",
+    "a young Japanese woman with a high ponytail, casual white shirt, cheerful",
+    "a young Japanese woman with short black hair and bangs, sage green top, calm",
+    "a Japanese woman in her late 20s with long wavy chestnut hair, elegant ivory dress",
+    "a young Japanese woman with twin side buns, playful expression, lavender knit",
     "a Japanese woman with a low bun and round glasses, smart navy jacket, intellectual",
-    "a young Japanese woman with medium ash-brown hair and inner color, trendy, yellow top",
+    "a young Japanese woman with medium ash-brown hair, trendy mustard top",
 ]
 
 MALES = [
     "a young Japanese man in his 20s with short black hair, white shirt, gentle smile",
-    "a young Japanese man with medium wavy dark hair, casual gray hoodie, relaxed",
+    "a young Japanese man with medium wavy dark hair, casual charcoal hoodie, relaxed",
     "a Japanese man in his late 20s with a neat undercut hairstyle, navy suit jacket, confident",
-    "a young Japanese man with slightly long center-parted hair, olive green shirt, calm",
-    "a Japanese man with short brown hair and glasses, light blue shirt, friendly and smart",
-    "a young Japanese man with a sporty short haircut, red training jacket, energetic",
+    "a young Japanese man with slightly long center-parted hair, olive shirt, calm",
+    "a Japanese man with short brown hair and glasses, dusty blue shirt, friendly and smart",
+    "a young Japanese man with a sporty short haircut, burgundy jacket, energetic",
     "a Japanese man in his 30s with a light stubble beard and short hair, denim shirt, mature",
-    "a young Japanese man with soft permed hair, beige sweater, kind and warm",
+    "a young Japanese man with soft permed hair, camel sweater, kind and warm",
 ]
 
+# maskable対応: 主役は中央60%に収め、四辺まで背景を敷く
 ICON_PROMPT = (
-    "A modern smartphone app icon: a cute glossy coral-pink heart combined with a small open notebook "
-    "or diary page tucked behind it, flat vector style with soft gradients (#ff8e9d to #f2536a), "
-    "on a soft cream white (#fff7f4) rounded background filling the whole square edge-to-edge, "
-    "kawaii, clean, minimal, no text, no letters, square 1:1, high quality app icon design"
+    "A premium smartphone app icon: a small elegant closed notebook with a warm amber-gold "
+    "heart emblem glowing softly on its cover, flat vector style with subtle gradients, "
+    "amber gold (#e0b268) and soft rose accents on a deep plum night background (#1d1522) "
+    "that fills the ENTIRE square edge-to-edge, the notebook motif centered and occupying "
+    "only the central 60% of the square with generous even margins on all sides, "
+    "romantic night-time mood, minimal, refined, no text, no letters, square 1:1, high quality"
+)
+
+EMPTY_PROMPT = (
+    "A cozy minimal spot illustration: an open blank diary notebook on a small wooden desk "
+    "at night, a warm amber desk lamp casting soft light over it, a tiny golden heart-shaped "
+    "bookmark resting on the page, a cup of tea beside it, steam gently rising, "
+    "elegant flat vector style, warm amber and rose accents, romantic quiet night mood, "
+    "plain solid deep plum background (#1d1522) filling the whole square edge-to-edge, "
+    "generous margins around the subject, no text, no letters, square 1:1, high quality"
 )
 
 
@@ -70,26 +87,18 @@ def save_resized(data, path, size):
 
 
 def main(only=None):
-    jobs = []
-    for i, desc in enumerate(FEMALES, 1):
-        jobs.append((f"f{i:02d}", desc + ", " + STYLE, AV_OUT, 256))
-    for i, desc in enumerate(MALES, 1):
-        jobs.append((f"m{i:02d}", desc + ", " + STYLE, AV_OUT, 256))
+    jobs = [(f"f{i:02d}", d) for i, d in enumerate(FEMALES, 1)] + \
+           [(f"m{i:02d}", d) for i, d in enumerate(MALES, 1)]
 
     ok = 0
-    for name, prompt, outdir, size in jobs:
+    for name, desc in jobs:
         if only and name not in only:
-            continue
-        target = outdir / f"{name}.png"
-        if target.exists() and not only:
-            print(f"skip(既存): {name}")
-            ok += 1
             continue
         print(f"生成中: {name} ...", flush=True)
         try:
-            data = gen_image(prompt)
+            data = gen_image(desc + ", " + STYLE)
             if data:
-                save_resized(data, target, size)
+                save_resized(data, AV_OUT / f"{name}.png", 256)
                 ok += 1
             else:
                 print(f"  !! 画像なし: {name}")
@@ -106,6 +115,16 @@ def main(only=None):
                 ok += 1
         except Exception as e:
             print(f"  ERROR icon: {e}")
+
+    if not only or "empty" in only:
+        print("生成中: 空画面イラスト ...", flush=True)
+        try:
+            data = gen_image(EMPTY_PROMPT)
+            if data:
+                save_resized(data, IL_OUT / "empty.png", 512)
+                ok += 1
+        except Exception as e:
+            print(f"  ERROR empty: {e}")
 
     print(f"\n完了: {ok} 件")
 

@@ -1,4 +1,4 @@
-const CACHE = 'koilog-v1';
+const CACHE = 'koilog-v3';
 
 const SHELL = [
   '.',
@@ -29,11 +29,13 @@ self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
   if (e.request.method !== 'GET' || url.origin !== location.origin) return;
 
-  if (url.pathname.includes('/assets/avatars/')) {
+  if (url.pathname.includes('/assets/')) {
     e.respondWith(
       caches.match(e.request).then(hit => hit || fetch(e.request).then(res => {
-        const copy = res.clone();
-        caches.open(CACHE).then(c => c.put(e.request, copy));
+        if (res.ok) {
+          const copy = res.clone();
+          caches.open(CACHE).then(c => c.put(e.request, copy));
+        }
         return res;
       }))
     );
@@ -43,8 +45,10 @@ self.addEventListener('fetch', e => {
   e.respondWith(
     fetch(e.request)
       .then(res => {
-        const copy = res.clone();
-        caches.open(CACHE).then(c => c.put(e.request, copy));
+        if (res.ok) {
+          const copy = res.clone();
+          caches.open(CACHE).then(c => c.put(e.request, copy));
+        }
         return res;
       })
       .catch(() => caches.match(e.request))

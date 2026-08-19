@@ -38,7 +38,7 @@ function stars(n) {
   return '★'.repeat(n) + '☆'.repeat(5 - n);
 }
 
-const INITIAL_COLORS = ['#d9a3ae', '#a3b8d9', '#a8c9b8', '#d9c3a3', '#b8a8d1', '#d9b0a3'];
+const INITIAL_COLORS = ['#e8a0b0', '#93b7e0', '#8fc9ae', '#e0bd8a', '#b6a3dd', '#e8ab93'];
 
 function avatarHtml(person, cls = 'avatar') {
   if (person.avatar) {
@@ -127,6 +127,7 @@ function renderHome() {
         ? `<span class="next">📅 ${fmtDate(p.nextDate.date)} ${esc(p.nextDate.plan)}</span>` : '';
       const sub = [p.app, p.job].filter(Boolean).join('・');
       return `<button class="person-card" data-id="${p.id}">
+        <span class="tape ${p.status}">${store.statusLabel(p.status)}</span>
         ${avatarHtml(p)}
         <span class="info">
           <span class="name-row"><span class="name">${esc(p.name) || '(名前なし)'}</span>
@@ -135,7 +136,6 @@ function renderHome() {
           ${p.rating ? `<span class="stars">${stars(p.rating)}</span>` : ''}
           ${nd}
         </span>
-        <span class="badge ${p.status}">${store.statusLabel(p.status)}</span>
       </button>`;
     }).join('') + `</div>`;
   }

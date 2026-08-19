@@ -17,12 +17,12 @@ for d in (AV_OUT, IC_OUT, IL_OUT):
 client = genai.Client(api_key=KEY)
 MODEL = "gemini-3-pro-image"
 
-# 夜の手帳トーン: 深い茄子紺の背景、暖かいランプの灯り、琥珀のアクセント
+# 陽だまりの手帳トーン: 生成りの紙、昼下がりのやわらかい光、紅と琥珀のアクセント
 STYLE = ("elegant flat vector portrait illustration, bust-up avatar, Japanese anime-lite style, "
-         "lit by warm amber lamp light from one side, soft rim light, gentle expression, "
-         "warm dusk color grading, refined and slightly romantic night-time mood, "
+         "bathed in soft warm afternoon sunlight, bright and cheerful, gentle warm expression, "
+         "fresh warm color grading, cozy daytime cafe mood, "
          "clean thin outlines, centered face, square 1:1 composition, "
-         "plain solid deep plum background (#2a1f31) filling the whole square, "
+         "plain solid warm cream background (#f6efe6) filling the whole square, "
          "no text, no letters, no watermark, high quality, consistent illustration style")
 
 FEMALES = [
@@ -49,21 +49,22 @@ MALES = [
 
 # maskable対応: 主役は中央60%に収め、四辺まで背景を敷く
 ICON_PROMPT = (
-    "A premium smartphone app icon: a small elegant closed notebook with a warm amber-gold "
-    "heart emblem glowing softly on its cover, flat vector style with subtle gradients, "
-    "amber gold (#e0b268) and soft rose accents on a deep plum night background (#1d1522) "
-    "that fills the ENTIRE square edge-to-edge, the notebook motif centered and occupying "
-    "only the central 60% of the square with generous even margins on all sides, "
-    "romantic night-time mood, minimal, refined, no text, no letters, square 1:1, high quality"
+    "A premium smartphone app icon: a small elegant closed diary notebook with a rose-pink "
+    "heart emblem and a thin gold ribbon bookmark on its cream cover, flat vector style with "
+    "subtle gradients, rose pink (#e0607e) and amber gold (#d9a441) accents on a warm cream "
+    "background (#fbf6ef) that fills the ENTIRE square edge-to-edge, the notebook motif "
+    "centered and occupying only the central 60% of the square with generous even margins "
+    "on all sides, bright cheerful warm mood, minimal, refined, "
+    "no text, no letters, square 1:1, high quality"
 )
 
 EMPTY_PROMPT = (
-    "A cozy minimal spot illustration: an open blank diary notebook on a small wooden desk "
-    "at night, a warm amber desk lamp casting soft light over it, a tiny golden heart-shaped "
-    "bookmark resting on the page, a cup of tea beside it, steam gently rising, "
-    "elegant flat vector style, warm amber and rose accents, romantic quiet night mood, "
-    "plain solid deep plum background (#1d1522) filling the whole square edge-to-edge, "
-    "generous margins around the subject, no text, no letters, square 1:1, high quality"
+    "A cozy minimal spot illustration: an open blank diary notebook on a bright wooden cafe "
+    "table by a sunny window, soft warm afternoon sunlight streaming in, a tiny rose-pink "
+    "heart-shaped bookmark resting on the page, a cup of milk tea beside it, a small potted "
+    "flower, elegant flat vector style, warm cream, rose and gold accents, bright cheerful "
+    "daytime mood, plain solid warm cream background (#fbf6ef) filling the whole square "
+    "edge-to-edge, generous margins around the subject, no text, no letters, square 1:1, high quality"
 )
 
 

@@ -1,4 +1,4 @@
-const CACHE = 'koilog-v3';
+const CACHE = 'koilog-v5';
 
 const SHELL = [
   '.',
